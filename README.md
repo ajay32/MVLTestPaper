@@ -2,6 +2,15 @@
 
 A high-quality Android application for booking trips with real-time Air Quality Index (AQI) tracking and Google Maps integration.
 
+## 📱 Screenshots
+
+<p align="center">
+  <img src="screenshots/Screenshot_20260418_233051.png" width="22%" />
+  <img src="screenshots/Screenshot_20260418_233114.png" width="22%" />
+  <img src="screenshots/Screenshot_20260418_233131.png" width="22%" />
+  <img src="screenshots/Screenshot_20260418_233144.png" width="22%" />
+</p>
+
 ## 🚀 Architecture & Tech Stack
 This project follows **Modern Android Development (MAD)** practices and **Clean Architecture** principles:
 
