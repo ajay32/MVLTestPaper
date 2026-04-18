@@ -4,12 +4,11 @@ import com.example.mvltestpaper.data.model.*
 import retrofit2.http.*
 
 interface AirQualityService {
-    @GET("feed/geo:{lat};{lng}/")
+    @POST("v1/currentConditions:lookup")
     suspend fun getAirQuality(
-        @Path("lat") lat: Double,
-        @Path("lng") lng: Double,
-        @Query("token") token: String
-    ): AirQualityResponse
+        @Query("key") apiKey: String,
+        @Body request: GoogleAirQualityRequest
+    ): GoogleAirQualityResponse
 }
 
 interface GeocodingService {

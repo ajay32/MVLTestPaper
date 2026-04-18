@@ -72,10 +72,17 @@ fun NavGraph(
         }
         composable(Screen.History.route) {
             HistoryScreen(
-                onBack = { navController.popBackStack() },
+                onBack = { 
+                    mapViewModel.reset()
+                    navController.navigate(Screen.Map.route) {
+                        popUpTo(Screen.Map.route) { inclusive = true }
+                    }
+                },
                 onHistoryItemSelected = { a, b ->
                     mapViewModel.setFromHistory(a, b)
-                    navController.popBackStack(Screen.Map.route, false)
+                    navController.navigate(Screen.Map.route) {
+                        popUpTo(Screen.Map.route) { inclusive = true }
+                    }
                 }
             )
         }

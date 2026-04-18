@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">MVLTestPaper</string>
+    <string name="label_aqi">aqi %1$d</string>
+    <string name="label_nickname">nickname %1$s</string>
+    <string name="label_price">price</string>
+    <string name="hint_nickname">nickname</string>
+    <string name="title_history">History</string>
+    <string name="label_total_count">Total Count</string>
+    <string name="label_total_price">Total Price</string>
+    <string name="label_point_a">A: %1$s</string>
+    <string name="label_point_b">B: %1$s</string>
+    <string name="btn_set_a">Set A</string>
+    <string name="btn_set_b">Set B</string>
+    <string name="btn_book">Book</string>
+    <string name="msg_no_booking">No booking data available.</string>
+    <string name="msg_no_history">No cached locations found.</string>
 </resources>

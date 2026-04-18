@@ -1,5 +1,6 @@
 package com.example.mvltestpaper.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,9 +9,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mvltestpaper.R
 import com.example.mvltestpaper.ui.viewmodel.MapViewModel
 
 @Composable
@@ -20,6 +23,11 @@ fun ResultScreen(
     onBackToMap: () -> Unit
 ) {
     val result = viewModel.bookingResult
+
+    // Requirement: Reset state on back press
+    BackHandler {
+        onBackToMap()
+    }
 
     Scaffold(
         containerColor = Color.White
@@ -47,7 +55,7 @@ fun ResultScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Bottom
                 ) {
-                    Text("price", style = MaterialTheme.typography.titleLarge, color = Color.Black)
+                    Text(stringResource(R.string.label_price), style = MaterialTheme.typography.titleLarge, color = Color.Black)
                     Text(
                         "${result.price.toInt()}",
                         style = MaterialTheme.typography.headlineMedium,
@@ -70,7 +78,7 @@ fun ResultScreen(
                 }
             } else {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No booking data available.")
+                    Text(stringResource(R.string.msg_no_booking))
                 }
             }
         }
@@ -86,13 +94,13 @@ fun SummaryItem(label: String, name: String, aqi: Int, nickname: String) {
             Text(name, style = MaterialTheme.typography.titleMedium)
         }
         Text(
-            "aqi  $aqi",
+            stringResource(R.string.label_aqi, aqi),
             modifier = Modifier.padding(start = 32.dp),
             style = MaterialTheme.typography.bodyMedium,
             color = Color.Gray
         )
         Text(
-            "nickname  $nickname",
+            stringResource(R.string.label_nickname, nickname),
             modifier = Modifier.padding(start = 32.dp),
             style = MaterialTheme.typography.bodyMedium,
             color = Color.Gray

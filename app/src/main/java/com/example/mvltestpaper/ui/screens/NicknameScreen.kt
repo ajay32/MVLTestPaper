@@ -1,6 +1,5 @@
 package com.example.mvltestpaper.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -10,9 +9,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mvltestpaper.R
 import com.example.mvltestpaper.ui.viewmodel.MapViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,7 +27,18 @@ fun NicknameScreen(
     var nickname by remember { mutableStateOf(point?.nickname ?: "") }
 
     Scaffold(
-        containerColor = Color.White
+        containerColor = Color.White,
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.hint_nickname)) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+            )
+        }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -50,7 +62,7 @@ fun NicknameScreen(
             }
             
             Text(
-                text = "aqi  ${point?.aqi ?: 0}",
+                text = stringResource(R.string.label_aqi, point?.aqi ?: 0),
                 modifier = Modifier.padding(start = 32.dp),
                 style = MaterialTheme.typography.bodyLarge,
                 color = Color.Black
@@ -61,8 +73,10 @@ fun NicknameScreen(
             OutlinedTextField(
                 value = nickname,
                 onValueChange = { if (it.length <= 20) nickname = it },
-                placeholder = { Text("nickname") },
+                placeholder = { Text(stringResource(R.string.hint_nickname)) },
                 modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                maxLines = 1,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color.LightGray,
                     unfocusedBorderColor = Color.LightGray

@@ -50,18 +50,23 @@ data class InformativeArea(
     val description: String? = null
 )
 
-// Air Quality Models (AQICN)
-data class AirQualityResponse(
-    val status: String,
-    val data: AirQualityData
+// Google Air Quality Models
+data class GoogleAirQualityRequest(
+    val location: LatLngLiteral
 )
 
-data class AirQualityData(
+data class LatLngLiteral(
+    val latitude: Double,
+    val longitude: Double
+)
+
+data class GoogleAirQualityResponse(
+    val indexes: List<AqiIndex>? = null
+)
+
+data class AqiIndex(
+    val code: String,
+    val displayName: String,
     val aqi: Int,
-    val city: AirQualityCity
-)
-
-data class AirQualityCity(
-    val name: String,
-    val geo: List<Double>
+    val category: String? = null
 )

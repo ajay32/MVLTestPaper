@@ -2,6 +2,7 @@ package com.example.mvltestpaper.ui.screens
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -14,9 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import com.example.mvltestpaper.R
 import com.example.mvltestpaper.ui.viewmodel.MapViewModel
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -38,10 +42,21 @@ fun MapScreen(
         position = CameraPosition.fromLatLngZoom(LatLng(37.5665, 126.9780), 15f)
     }
 
+    var hasLocationPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true) {
+        val isGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+        hasLocationPermission = isGranted
+        if (isGranted) {
             val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
@@ -68,6 +83,12 @@ fun MapScreen(
         }
     }
 
+    LaunchedEffect(viewModel.bookingResult) {
+        if (viewModel.bookingResult != null) {
+            onNavigateToResult()
+        }
+    }
+
     var isMapLoaded by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -77,11 +98,11 @@ fun MapScreen(
             uiSettings = MapUiSettings(zoomControlsEnabled = false),
             onMapLoaded = { isMapLoaded = true },
             properties = MapProperties(
-                isMyLocationEnabled = true
+                isMyLocationEnabled = hasLocationPermission
             )
         )
 
-        // Center Marker (Simulated with a Box/Icon)
+        // Center Marker
         Box(
             modifier = Modifier
                 .size(40.dp)
@@ -100,7 +121,7 @@ fun MapScreen(
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Text(
-                text = "AQI: ${viewModel.currentAqi}",
+                text = stringResource(R.string.label_aqi, viewModel.currentAqi),
                 modifier = Modifier.padding(8.dp),
                 style = MaterialTheme.typography.titleMedium
             )
@@ -180,22 +201,25 @@ fun MapScreen(
             Button(
                 onClick = {
                     viewModel.onVButtonClicked(cameraPositionState.position.target)
-                    if (viewModel.pointA != null && viewModel.pointB != null) {
-                        onNavigateToResult()
-                    }
                 },
                 modifier = Modifier
-                    .width(80.dp)
+                    .width(100.dp)
                     .height(120.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC107)),
-                enabled = !viewModel.isLoading
+                enabled = !viewModel.isLoading,
+                contentPadding = PaddingValues(8.dp)
             ) {
                 if (viewModel.isLoading) {
                     CircularProgressIndicator(color = Color.Black, modifier = Modifier.size(24.dp))
                 } else {
+                    val textRes = when (viewModel.buttonText) {
+                        "Set A" -> R.string.btn_set_a
+                        "Set B" -> R.string.btn_set_b
+                        else -> R.string.btn_book
+                    }
                     Text(
-                        text = viewModel.buttonText,
+                        text = stringResource(textRes),
                         fontSize = 14.sp,
                         color = Color.Black,
                         fontWeight = FontWeight.Bold
@@ -203,18 +227,5 @@ fun MapScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun LabelItem(label: String, value: String, onClick: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .width(150.dp)
-            .clickable(onClick = onClick)
-            .padding(8.dp)
-    ) {
-        Text(text = label, style = MaterialTheme.typography.labelSmall, color = Color.Gray)
-        Text(text = value, style = MaterialTheme.typography.bodyMedium, maxLines = 1)
     }
 }

@@ -32,7 +32,7 @@ object NetworkModule {
     @Singleton
     fun provideAirQualityService(okHttpClient: OkHttpClient): AirQualityService {
         return Retrofit.Builder()
-            .baseUrl("https://api.waqi.info/")
+            .baseUrl("https://airquality.googleapis.com/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

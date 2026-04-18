@@ -2,8 +2,8 @@ package com.example.mvltestpaper.data.repository
 
 import com.example.mvltestpaper.data.api.AirQualityService
 import com.example.mvltestpaper.data.api.BookService
-import com.example.mvltestpaper.data.api.GeocodingService
 import com.example.mvltestpaper.data.model.*
+import com.example.mvltestpaper.domain.GetFormattedAddressUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
@@ -13,59 +13,45 @@ import kotlin.math.roundToInt
 @Singleton
 class MVLRepository @Inject constructor(
     private val airQualityService: AirQualityService,
-    private val geocodingService: GeocodingService,
+    private val getFormattedAddressUseCase: GetFormattedAddressUseCase,
     private val bookService: BookService
 ) {
-    // Optional: Local cache for searched locations
     private val _cachedLocations = MutableStateFlow<List<LocationPoint>>(emptyList())
     val cachedLocations: Flow<List<LocationPoint>> = _cachedLocations
 
-    private val AQI_TOKEN = "demo" // User should replace with their token
-
     suspend fun getAirQuality(lat: Double, lng: Double): Int {
         return try {
-            val response = airQualityService.getAirQuality(lat, lng, AQI_TOKEN)
-            response.data.aqi
+            val request = GoogleAirQualityRequest(location = LatLngLiteral(lat, lng))
+            val response = airQualityService.getAirQuality(
+                apiKey = com.example.mvltestpaper.BuildConfig.MAPS_API_KEY,
+                request = request
+            )
+            response.indexes?.firstOrNull()?.aqi ?: 0
         } catch (e: Exception) {
             0
         }
     }
 
     suspend fun getAddressName(lat: Double, lng: Double): String {
-        return try {
-            // Check cache first
-            val cached = _cachedLocations.value.find { isSameLocation(it.latitude, it.longitude, lat, lng) }
-            if (cached != null) return cached.name
+        val cached = _cachedLocations.value.find { isSameLocation(it.latitude, it.longitude, lat, lng) }
+        if (cached != null) return cached.name
 
-            val response = geocodingService.reverseGeocode(lat, lng)
-            val adminAreas = response.localityInfo.administrative
-                .sortedByDescending { it.order }
-            
-            val formattedName = if (adminAreas.size >= 2) {
-                "${adminAreas[1].name}, ${adminAreas[0].name}"
-            } else if (adminAreas.isNotEmpty()) {
-                adminAreas[0].name
-            } else {
-                "Unknown Location"
-            }
-
-            // Cache it
+        val formattedName = getFormattedAddressUseCase(lat, lng)
+        
+        if (formattedName != "Error fetching address") {
             saveToCache(lat, lng, formattedName)
-            
-            formattedName
-        } catch (e: Exception) {
-            "Error fetching address"
         }
+        
+        return formattedName
     }
 
     private fun saveToCache(lat: Double, lng: Double, name: String) {
-        val aqiPlaceholder = 0 // Will be updated if AQI is fetched
+        val aqiPlaceholder = 0
         cacheLocation(LocationPoint(lat, lng, aqiPlaceholder, name))
     }
 
     suspend fun createBook(a: LocationPoint, b: LocationPoint): BookResponse {
-        val response = bookService.createBook(BookRequest(a, b))
-        return response
+        return bookService.createBook(BookRequest(a, b))
     }
 
     suspend fun getBookingHistory(year: Int, month: Int): List<BookResponse> {
