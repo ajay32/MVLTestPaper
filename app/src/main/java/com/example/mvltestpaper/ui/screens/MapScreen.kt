@@ -68,11 +68,17 @@ fun MapScreen(
         }
     }
 
+    var isMapLoaded by remember { mutableStateOf(false) }
+
     Box(modifier = Modifier.fillMaxSize()) {
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
-            uiSettings = MapUiSettings(zoomControlsEnabled = false)
+            uiSettings = MapUiSettings(zoomControlsEnabled = false),
+            onMapLoaded = { isMapLoaded = true },
+            properties = MapProperties(
+                isMyLocationEnabled = true
+            )
         )
 
         // Center Marker (Simulated with a Box/Icon)
